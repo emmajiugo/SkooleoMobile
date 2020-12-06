@@ -1,0 +1,37 @@
+import 'package:dio/dio.dart';
+import 'package:skooleo/src/helpers/ExceptionHelper.dart';
+import 'package:skooleo/src/locator.dart';
+import 'package:skooleo/src/models/register.dart';
+import 'package:skooleo/src/providers/base_provider.dart';
+import 'package:skooleo/src/services/user_service.dart';
+
+class RegisterProvider extends BaseProvider {
+  Future<bool> register(Register register) async {
+    isLoading = true;
+    error = null;
+    try {
+      await locator<UserService>().register(register);
+      isLoading = false;
+      return true;
+    } on DioError catch (e) {
+      isLoading = false;
+      if (e.type == DioErrorType.RESPONSE) {
+        switch (e?.response?.statusCode) {
+          case 422:
+            error = ExceptionHelper(
+                (e?.response?.data as Map).values.toList()[0][0].toString());
+            break;
+          case 409:
+            error = ExceptionHelper(e?.response?.data['message']);
+            break;
+          default:
+            error = ExceptionHelper('An unexpected error occurred');
+            break;
+        }
+      } else {
+        error = ExceptionHelper(e.message);
+      }
+      return false;
+    }
+  }
+}
