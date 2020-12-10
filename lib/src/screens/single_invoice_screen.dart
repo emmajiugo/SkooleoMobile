@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/constants.dart';
 import 'package:skooleo/src/locator.dart';
 import 'package:skooleo/src/models/payment_link.dart';
@@ -24,7 +25,6 @@ class SingleInvoiceScreen extends StatefulWidget {
 }
 
 class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool _isPaymentLoading = false;
 
   void loadPayment(InvoiceProvider model) async {
@@ -42,33 +42,43 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
             .pushNamed(WEB_VIEW_SCREEN, arguments: paymentLink.data);
         model.getSingleInvoice(widget.reference);
       } else {
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Could not launch (${paymentLink.data})',
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "ERROR",
+          desc: 'Could not launch (${paymentLink.data})',
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       }
     } on DioError catch (error) {
       setState(() {
         _isPaymentLoading = false;
       });
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to generate payment link - (${error.message})',
-          ),
-          action: SnackBarAction(
-            label: 'OK',
-            onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-          ),
-        ),
-      );
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "ERROR",
+        desc: 'Failed to generate payment link - (${error.message})',
+        buttons: [
+          DialogButton(
+            child: Text(
+              "OKAY",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
     }
   }
 
@@ -78,7 +88,6 @@ class _SingleInvoiceScreenState extends State<SingleInvoiceScreen> {
       inAsyncCall: _isPaymentLoading,
       progressIndicator: CircularProgressIndicator(),
       child: Scaffold(
-        key: _scaffoldKey,
         appBar: AppBar(
           title: Text(
             'Invoice #${widget.reference.toString()}',

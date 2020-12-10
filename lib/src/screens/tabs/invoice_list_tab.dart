@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/models/invoice.dart';
 import 'package:skooleo/src/models/payment_link.dart';
 import 'package:skooleo/src/providers/invoice_provider.dart';
@@ -19,7 +20,6 @@ class InvoiceListTab extends StatefulWidget {
 }
 
 class _InvoiceListTabState extends State<InvoiceListTab> {
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -68,33 +68,43 @@ class _InvoiceListTabState extends State<InvoiceListTab> {
             .pushNamed(WEB_VIEW_SCREEN, arguments: paymentLink.data);
         loadInvoices();
       } else {
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Could not launch (${paymentLink.data})',
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "ERROR",
+          desc: 'Could not launch (${paymentLink.data})',
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       }
     } on DioError catch (error) {
       setState(() {
         _isPaymentLoading = false;
       });
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to generate payment link - (${error.message})',
-          ),
-          action: SnackBarAction(
-            label: 'OK',
-            onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-          ),
-        ),
-      );
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "ERROR",
+        desc: 'Failed to generate payment link - (${error.message})',
+        buttons: [
+          DialogButton(
+            child: Text(
+              "OKAY",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
     }
   }
 
@@ -110,7 +120,6 @@ class _InvoiceListTabState extends State<InvoiceListTab> {
       inAsyncCall: _isPaymentLoading,
       progressIndicator: CircularProgressIndicator(),
       child: Scaffold(
-        key: _scaffoldKey,
         body: Column(
           children: [
             Container(
@@ -139,24 +148,24 @@ class _InvoiceListTabState extends State<InvoiceListTab> {
                     ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : _invoices == null || _invoices.isEmpty
-                        ? EmptyScreenTemplate(
-                            message: 'You have no Invoice yet',
-                          )
-                        : SmartRefresher(
-                            onRefresh: refreshInvoices,
-                            header: WaterDropMaterialHeader(),
-                            controller: _refreshController,
-                            child: ListView.separated(
-                              itemCount: _invoices.length,
-                              separatorBuilder:
-                                  (BuildContext context, int index) =>
-                                      Divider(height: 1),
-                              itemBuilder: (context, index) => InvoiceItem(
-                                invoice: _invoices[index],
+                    : SmartRefresher(
+                        onRefresh: refreshInvoices,
+                        header: WaterDropMaterialHeader(),
+                        controller: _refreshController,
+                        child: _invoices == null || _invoices.isEmpty
+                            ? EmptyScreenTemplate(
+                                message: 'You have no Invoice yet',
+                              )
+                            : ListView.separated(
+                                itemCount: _invoices.length,
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        Divider(height: 1),
+                                itemBuilder: (context, index) => InvoiceItem(
+                                  invoice: _invoices[index],
+                                ),
                               ),
-                            ),
-                          ),
+                      ),
               ),
             ),
           ],

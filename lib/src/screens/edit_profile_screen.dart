@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/constants.dart';
 import 'package:skooleo/src/helpers/ExceptionHelper.dart';
 import 'package:skooleo/src/locator.dart';
@@ -16,8 +17,6 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final _fullNameController = TextEditingController();
 
@@ -56,29 +55,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       bool success = await model.updateProfile(
           _fullNameController.text, _phoneNumberController.text);
       if (success) {
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Profile updated successfully',
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.success,
+          title: "SUCCESS",
+          desc: 'Profile updated successfully',
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       } else {
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              model.error.message,
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "ERROR",
+          desc: model.error.message,
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       }
     }
   }
@@ -92,7 +101,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Edit Profile'),
       ),

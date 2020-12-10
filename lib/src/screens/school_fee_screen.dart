@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/constants.dart';
 import 'package:skooleo/src/helpers/ExceptionHelper.dart';
 import 'package:skooleo/src/models/fee_type.dart';
@@ -24,8 +25,6 @@ class SchoolFeeScreen extends StatefulWidget {
 
 class _SchoolFeeScreenState extends State<SchoolFeeScreen> {
   List<String> _classes = <String>[];
-
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   int _feeType;
   String _section;
@@ -63,17 +62,22 @@ class _SchoolFeeScreenState extends State<SchoolFeeScreen> {
       Navigator.of(context)
           .pushNamed(ADD_STUDENT_SCREEN, arguments: model.schoolFee);
     } else {
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(
-            model.error.message,
-          ),
-          action: SnackBarAction(
-            label: 'OK',
-            onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-          ),
-        ),
-      );
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "ERROR",
+        desc: model.error.message,
+        buttons: [
+          DialogButton(
+            child: Text(
+              "OKAY",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
     }
   }
 
@@ -86,7 +90,6 @@ class _SchoolFeeScreenState extends State<SchoolFeeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
           'Pay Fee',

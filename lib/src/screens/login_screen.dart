@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/constants.dart';
 import 'package:skooleo/src/models/login.dart';
 import 'package:skooleo/src/providers/login_provider.dart';
@@ -37,17 +38,22 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context)
             .pushNamedAndRemoveUntil(NAV_SCREEN, (route) => false);
       } else {
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              model.error.message,
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "ERROR",
+          desc: model.error.message,
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:skooleo/src/services/user_service.dart';
 
 import '../constants.dart';
@@ -12,8 +13,6 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -50,30 +49,40 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             .changePassword(
                 _newPasswordController.text, _confirmPasswordController.text);
         isLoading = false;
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              response['message'],
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.success,
+          title: 'SUCCESS',
+          desc: response['message'],
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       } on DioError catch (e) {
         isLoading = false;
-        _scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text(
-              e.message,
-            ),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => _scaffoldKey.currentState.hideCurrentSnackBar(),
-            ),
-          ),
-        );
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "ERROR",
+          desc: e.message,
+          buttons: [
+            DialogButton(
+              child: Text(
+                "OKAY",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
       }
     }
   }
@@ -81,7 +90,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Change Password'),
       ),
