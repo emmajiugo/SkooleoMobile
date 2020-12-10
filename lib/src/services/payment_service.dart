@@ -12,6 +12,7 @@ class PaymentService {
 
   Future<PaymentLink> payBulk() async {
     Response response = await dio.get('/payments/bulk');
+    print(response.data);
     return PaymentLink.fromJson(response.data);
   }
 }

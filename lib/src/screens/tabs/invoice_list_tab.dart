@@ -63,16 +63,12 @@ class _InvoiceListTabState extends State<InvoiceListTab> {
     try {
       PaymentLink paymentLink = await locator<PaymentService>().payBulk();
       isPaymentLoading = false;
-      if (await canLaunch(paymentLink.data)) {
-        await Navigator.of(context)
-            .pushNamed(WEB_VIEW_SCREEN, arguments: paymentLink.data);
-        loadInvoices();
-      } else {
+      if (paymentLink.status.toLowerCase() == 'failed') {
         Alert(
           context: context,
-          type: AlertType.error,
-          title: "ERROR",
-          desc: 'Could not launch (${paymentLink.data})',
+          type: AlertType.info,
+          title: "INFO",
+          desc: paymentLink.message,
           buttons: [
             DialogButton(
               child: Text(
@@ -84,6 +80,29 @@ class _InvoiceListTabState extends State<InvoiceListTab> {
             )
           ],
         ).show();
+      } else {
+        if (await canLaunch(paymentLink.data)) {
+          await Navigator.of(context)
+              .pushNamed(WEB_VIEW_SCREEN, arguments: paymentLink.data);
+          loadInvoices();
+        } else {
+          Alert(
+            context: context,
+            type: AlertType.error,
+            title: "ERROR",
+            desc: 'Could not launch (${paymentLink.data})',
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "OKAY",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () => Navigator.pop(context),
+                width: 120,
+              )
+            ],
+          ).show();
+        }
       }
     } on DioError catch (error) {
       setState(() {
