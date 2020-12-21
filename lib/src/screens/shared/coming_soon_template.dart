@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ComingSoonTemplate extends StatelessWidget {
@@ -10,11 +11,26 @@ class ComingSoonTemplate extends StatelessWidget {
     path: 'hello@skooleo.com',
   );
 
-  void _launchURL() async {
+  void _launchURL(context) async {
     if (await canLaunch(_emailLaunchUri.toString())) {
       await launch(_emailLaunchUri.toString());
     } else {
-      throw 'Could not launch ${_emailLaunchUri.toString()}';
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "ERROR",
+        desc: 'Could not launch (${_emailLaunchUri.toString()})',
+        buttons: [
+          DialogButton(
+            child: Text(
+              "OKAY",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
     }
   }
 
@@ -57,7 +73,7 @@ class ComingSoonTemplate extends StatelessWidget {
                 children: <TextSpan>[
                   TextSpan(
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => _launchURL(),
+                      ..onTap = () => _launchURL(context),
                     text: 'hello@skooleo.com',
                     style: GoogleFonts.openSans(
                       decoration: TextDecoration.underline,

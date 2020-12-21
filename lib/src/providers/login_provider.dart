@@ -14,11 +14,13 @@ class LoginProvider extends BaseProvider {
       isLoading = false;
       return true;
     } on DioError catch (e) {
+      print(e.response.data);
       isLoading = false;
       if (e.type == DioErrorType.RESPONSE) {
         switch (e?.response?.statusCode) {
           case 401:
-            error = ExceptionHelper('Invalid username and password');
+          case 503:
+            error = ExceptionHelper(e?.response?.data['message']);
             break;
           case 422:
             error = ExceptionHelper(

@@ -8,4 +8,9 @@ class ContactService {
     Response response = await dio.get('/web-settings');
     return Contact.fromJson(response.data);
   }
+
+  Future<String> getLiveChatLink() async {
+    Response response = await dio.get('/live-chat');
+    return response.data['data'];
+  }
 }
