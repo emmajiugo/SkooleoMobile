@@ -56,6 +56,6 @@ Dio dio = Dio(_options)
   ..interceptors.addAll(
     [
       CustomInterceptor(),
-      LogInterceptor(),
+      // LogInterceptor(),
     ],
   );
